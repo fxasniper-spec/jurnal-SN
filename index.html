@@ -106,12 +106,32 @@ dialog{max-height:calc(100% - 28px);overflow:auto}
 .pill button:hover{color:var(--loss)}
 .mrow{display:flex;gap:8px}
 .mrow input{flex:1;min-width:0;background:var(--panel2);border:1px solid var(--line);border-radius:9px;padding:7px 10px;font-size:.86rem}
+
+#login{position:fixed;inset:0;z-index:9999;background:var(--bg);display:flex;align-items:center;justify-content:center;padding:16px}
+#login .box{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:22px;width:100%;max-width:360px}
+#login h2{margin:0 0 4px;font-size:1.15rem}
+#login p{margin:0 0 14px;color:var(--mute);font-size:.86rem}
+#login label{display:block;font-size:.8rem;color:var(--mute);margin:10px 0 4px}
+#login input{width:100%;padding:10px;border:1px solid var(--line);border-radius:9px;background:var(--panel2);color:var(--ink);font:inherit}
+#login .err{color:var(--loss);font-size:.82rem;min-height:1.2em;margin-top:10px}
+#login .acts2{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
 </style>
 </head>
 <body>
+<div id="login"><div class="box">
+<h2>SNIPER FX Dashboard</h2>
+<p id="lstate">Checking login...</p>
+<form id="lf" hidden>
+<label for="em">Email</label><input id="em" type="email" autocomplete="email" required>
+<label for="pw">Password</label><input id="pw" type="password" autocomplete="current-password" required>
+<div class="err" id="lerr"></div>
+<div class="acts2"><button class="btn main" id="bin" type="submit">Log in</button><button class="btn" id="bup" type="button">Create account</button></div>
+</form>
+<div class="err" id="lerr2"></div>
+</div></div>
 <main>
 <header><h1>Dashboard</h1>
-<div class="hr"><div class="tabs" id="tabs"></div><button class="btn" id="mng" type="button">Customize lists</button><button class="btn main" id="add" type="button">+ Add trade</button></div></header>
+<div class="hr"><div class="tabs" id="tabs"></div><span id="syn" style="font-size:.78rem;color:var(--mute)"></span><button class="btn" id="lo" type="button">Log out</button><button class="btn" id="mng" type="button">Customize lists</button><button class="btn main" id="add" type="button">+ Add trade</button></div></header>
 
 <section class="kpis" id="kpis"></section>
 
@@ -138,7 +158,7 @@ dialog{max-height:calc(100% - 28px);overflow:auto}
 <section class="card"><h2 style="margin-bottom:8px">Trade history <span id="t5"></span></h2><div class="tw"><table><thead><tr><th>Date</th><th>Session</th><th>Setup</th><th>Level</th><th>TF</th><th>Result</th><th>R</th><th>Review</th><th></th></tr></thead><tbody id="rows"></tbody></table></div></section>
 
 <div class="acts" style="margin-top:12px"><button class="btn" id="exp" type="button">Download backup</button><button class="btn" id="imp" type="button">Restore backup</button><input type="file" id="file" accept=".json,application/json" hidden></div>
-<p class="foot">Trades are saved in this browser only. Click a day on the calendar to add a trade for that date. Download a backup now and then.</p>
+<p class="foot">Trades are saved to your account and sync across your devices. Click a day on the calendar to add a trade for that date. Download a backup now and then.</p>
 </main>
 
 <dialog id="adlg"><form id="f">
@@ -182,7 +202,7 @@ var SEED=[
  {d:"2026-10-07",s:"PB",ss:"London",tf:["H1"],lv:["ALQ"],o:"Loss",r:-1},
  {d:"2026-10-08",s:"PB",ss:"Frankfurt",tf:["15m"],lv:["Momentum Trap"],o:"Loss",r:-1}
 ];
-(function(){
+window.startApp=function(){
 var KEY='sniper-fx-journal-v1',$=function(i){return document.getElementById(i)},NS='http://www.w3.org/2000/svg',per='all',T=[];
 var p2=function(n){return (n<10?'0':'')+n},ld=function(d){return d.getFullYear()+'-'+p2(d.getMonth()+1)+'-'+p2(d.getDate())};
 var now=new Date(),today=ld(now),cal=new Date(now.getFullYear(),now.getMonth(),1);
@@ -362,6 +382,71 @@ function render(){
 $('sel').onchange=render;
 applyLists();refreshLists();
 load();render();
+};
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script>
+(function(){
+var SU="https://vbjnpkqgbhrfjlmkkwon.supabase.co",SK="sb_publishable_QmBsF8j-tC_iAib82Gmuew_l6C7BKb6";
+var TK='sniper-fx-journal-v1',LK='sniper-fx-lists-v2',STK='sniper-fx-sync-ts',BK='sniper-fx-backup-before-sync';
+var $=function(i){return document.getElementById(i)};
+var sb=supabase.createClient(SU,SK),user=null,started=false,ready=false,timer=null;
+var orig=Storage.prototype.setItem;
+Storage.prototype.setItem=function(k,v){orig.call(this,k,v);if(ready&&this===localStorage&&(k===TK||k===LK))queue()};
+function status(t){var s=$('syn');if(s)s.textContent=t}
+function queue(){status('Saving...');clearTimeout(timer);timer=setTimeout(push,800)}
+function local(){var t=[],l=null;try{t=JSON.parse(localStorage.getItem(TK))||[]}catch(e){}try{l=JSON.parse(localStorage.getItem(LK))}catch(e){}return{t:t,l:l}}
+async function push(){
+  timer=null;var d=local(),ts=new Date().toISOString();
+  var r=await sb.from('journal_data').upsert({user_id:user.id,trades:d.t,lists:d.l,updated_at:ts});
+  if(r.error){status('Not saved: '+r.error.message);return}
+  orig.call(localStorage,STK,ts);status('Saved')
+}
+function pull(){return sb.from('journal_data').select('trades,lists,updated_at').maybeSingle()}
+function applyRemote(row){
+  orig.call(localStorage,TK,JSON.stringify(row.trades||[]));
+  if(row.lists)orig.call(localStorage,LK,JSON.stringify(row.lists));
+  orig.call(localStorage,STK,row.updated_at)
+}
+async function begin(u){
+  if(started)return;started=true;user=u;
+  $('lstate').textContent='Loading your journal...';$('lf').hidden=true;$('lerr2').textContent='';
+  var r=await pull();
+  if(r.error){started=false;$('lstate').textContent='Could not load your data.';$('lerr2').textContent=r.error.message;return}
+  var row=r.data;
+  if(row){
+    if(!localStorage.getItem(STK)&&localStorage.getItem(TK)){orig.call(localStorage,BK,localStorage.getItem(TK))}
+    applyRemote(row)
+  }
+  $('login').style.display='none';
+  window.startApp();
+  ready=true;
+  if(row)status('Synced');else push();
+}
+sb.auth.onAuthStateChange(function(ev,session){
+  if(session){begin(session.user)}
+  else if(ev==='SIGNED_OUT'){location.reload()}
+  else if(ev==='INITIAL_SESSION'){$('lstate').textContent='Log in to see your trades on any device.';$('lf').hidden=false}
+});
+$('lf').onsubmit=async function(e){
+  e.preventDefault();$('lerr').textContent='';
+  var r=await sb.auth.signInWithPassword({email:$('em').value.trim(),password:$('pw').value});
+  if(r.error)$('lerr').textContent=r.error.message
+};
+$('bup').onclick=async function(){
+  $('lerr').textContent='';
+  var r=await sb.auth.signUp({email:$('em').value.trim(),password:$('pw').value});
+  if(r.error)$('lerr').textContent=r.error.message;
+  else if(!r.data.session)$('lerr').textContent='Account created. Check your email to confirm it, then log in.'
+};
+$('lo').onclick=function(){sb.auth.signOut()};
+document.addEventListener('visibilitychange',async function(){
+  if(document.hidden||!ready||timer||document.querySelector('dialog[open]'))return;
+  var r=await pull();if(r.error||!r.data)return;
+  var mine=Date.parse(localStorage.getItem(STK)||'')||0;
+  if(Date.parse(r.data.updated_at)>mine+1000&&!timer){applyRemote(r.data);location.reload()}
+});
 })();
 </script>
 </body>
