@@ -145,6 +145,7 @@ dialog{max-height:calc(100% - 28px);overflow:auto}
 </div>
 
 <div class="grid3">
+ <section class="card"><h2>Monthly win rate</h2><div id="g7"></div></section>
  <section class="card"><h2>Session performance</h2><div id="g1"></div></section>
  <section class="card"><h2>Setup performance</h2><div id="g2"></div></section>
  <section class="card"><h2>Level performance</h2><div id="g3"></div></section>
@@ -264,6 +265,16 @@ function groupRows(id,key,a){
     var b=el('div',undefined,'bar'),i=el('i');i.style.width=s.wr+'%';b.appendChild(i);r.appendChild(b);box.appendChild(r)});
 }
 
+function monthRows(a){
+  var box=$('g7');box.textContent='';var m={};
+  a.forEach(function(x){var k=x.d.slice(0,7);(m[k]=m[k]||[]).push(x)});
+  var ks=Object.keys(m).sort().reverse();
+  if(!ks.length){box.appendChild(el('div','No data','empty'));return}
+  ks.forEach(function(k){var s=st(m[k]),p=k.split('-'),lb=new Date(+p[0],+p[1]-1,1).toLocaleString('en',{month:'short',year:'numeric'}),r=el('div',undefined,'row');
+    r.appendChild(el('span',lb));r.appendChild(el('span',s.wr.toFixed(1)+'% · '+s.w+'W '+s.l+'L · '+f(s.r)+'R','v'));
+    var bar=el('div',undefined,'bar'),i=el('i');i.style.width=s.wr+'%';bar.appendChild(i);r.appendChild(bar);box.appendChild(r)});
+}
+
 // ---- calendar
 function drawCal(){
   var y=cal.getFullYear(),m=cal.getMonth(),dim=new Date(y,m+1,0).getDate(),start=new Date(y,m,1).getDay(),pre=y+'-'+p2(m+1),g=$('cal'),byD={},mR=0,days=0;
@@ -361,7 +372,7 @@ function render(){
   $('score').textContent=D.length?(sc.reduce(function(a,b){return a+b},0)/6).toFixed(1):'–';
 
   drawCal();
-  groupRows('g1','ss',D);groupRows('g2','s',D);groupRows('g3','lv',D);groupRows('g4','tf',D);
+  groupRows('g1','ss',D);groupRows('g2','s',D);groupRows('g3','lv',D);groupRows('g4','tf',D);monthRows(all);
   var RV=D.filter(function(x){return x.emo&&x.emo.length||x.mis&&x.mis.length||x.stars}),rt=RV.filter(function(x){return x.stars});
   $('t6').textContent=RV.length?'· '+RV.length+' reviewed'+(rt.length?' · avg execution '+(rt.reduce(function(a,x){return a+x.stars},0)/rt.length).toFixed(1)+'/5':''):'';
   groupRows('g5','emo',RV.filter(function(x){return x.emo&&x.emo.length}));groupRows('g6','mis',RV.filter(function(x){return x.mis&&x.mis.length}));
