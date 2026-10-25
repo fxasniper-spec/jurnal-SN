@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>SNIPER FX Dashboard</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 :root{--bg:#f3f3f8;--panel:#fff;--panel2:#f6f6fb;--ink:#1e1b3a;--mute:#6f6c8a;--line:#e6e5f0;--win:#2fb67e;--loss:#ee6b6b;--be:#7b8cf0;--acc:#5b45d6;--winbg:#d9f3e6;--lossbg:#fbdede;--bebg:#dfe3fb}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0e0e16;--panel:#16161f;--panel2:#1d1d2a;--ink:#ecebf5;--mute:#9391ad;--line:#272738;--win:#3cd195;--loss:#f27d7d;--be:#8d9bf5;--acc:#8b78f5;--winbg:#12392b;--lossbg:#3d1d22;--bebg:#222a52}}
@@ -115,6 +115,51 @@ dialog{max-height:calc(100% - 28px);overflow:auto}
 #login input{width:100%;padding:10px;border:1px solid var(--line);border-radius:9px;background:var(--panel2);color:var(--ink);font:inherit}
 #login .err{color:var(--loss);font-size:.82rem;min-height:1.2em;margin-top:10px}
 #login .acts2{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+
+/* ---- professional theme ---- */
+:root{--bg:#f4f5f7;--panel:#fff;--panel2:#f7f8fa;--ink:#101828;--mute:#667085;--line:#e4e7ec;--win:#16a06a;--loss:#e5484d;--be:#5b6ee1;--acc:#2447c8;--winbg:#e3f5ec;--lossbg:#fdeaea;--bebg:#e8ecfb}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0b0e13;--panel:#12171e;--panel2:#181e27;--ink:#e8ecf2;--mute:#8b95a5;--line:#222a35;--win:#34c98b;--loss:#f06b70;--be:#8a9bf0;--acc:#7b97ff;--winbg:#0f2f24;--lossbg:#35191c;--bebg:#1e2540}}
+:root[data-theme="dark"]{--bg:#0b0e13;--panel:#12171e;--panel2:#181e27;--ink:#e8ecf2;--mute:#8b95a5;--line:#222a35;--win:#34c98b;--loss:#f06b70;--be:#8a9bf0;--acc:#7b97ff;--winbg:#0f2f24;--lossbg:#35191c;--bebg:#1e2540}
+body{font-family:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;font-size:14.5px}
+main{padding:22px 16px 64px}
+header{padding-bottom:16px;margin-bottom:18px;border-bottom:1px solid var(--line)}
+.brand{display:flex;align-items:center;gap:12px}
+.brand::before{content:"";width:34px;height:34px;border-radius:9px;background:var(--acc) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23fff' stroke-width='1.8' stroke-linecap='round'%3E%3Ccircle cx='12' cy='12' r='6.5'/%3E%3Cpath d='M12 2.5v5M12 16.5v5M2.5 12h5M16.5 12h5'/%3E%3C/svg%3E") center/20px no-repeat}
+h1{font-size:1.2rem;font-weight:700;letter-spacing:.02em;line-height:1.1}
+.sub{display:block;font-size:.76rem;color:var(--mute);margin-top:2px}
+h2{color:var(--ink);font-size:.88rem;font-weight:600}
+h2 span{color:var(--mute);font-weight:400}
+.card{border-radius:10px;padding:18px;box-shadow:0 1px 2px rgba(16,24,40,.04)}
+.card>small,.kpi small{color:var(--mute);font-weight:500;font-size:.78rem}
+.big{font-size:1.65rem;font-weight:600;letter-spacing:-.02em;margin-top:6px}
+.tabs{background:var(--panel2);border-radius:9px}
+.tabs button{border-radius:7px;font-weight:500}
+.tabs button[aria-pressed="true"]{background:var(--panel);color:var(--ink);font-weight:600;box-shadow:0 0 0 1px var(--line),0 1px 2px rgba(16,24,40,.08)}
+.btn{border-radius:8px;transition:background .12s,border-color .12s}
+.btn.main:hover{filter:brightness(1.1);background:var(--acc)}
+.nav{font-size:1rem}
+.day,.wk{border-radius:6px}
+.day .n{color:var(--mute)}
+.day.w{background:var(--winbg);border-color:transparent;box-shadow:inset 3px 0 0 var(--win)}
+.day.l{background:var(--lossbg);border-color:transparent;box-shadow:inset 3px 0 0 var(--loss)}
+.day.z{background:var(--bebg);border-color:transparent;box-shadow:inset 3px 0 0 var(--be)}
+.day.w b{color:var(--win)}.day.l b{color:var(--loss)}.day.z b{color:var(--be)}
+.day.off{box-shadow:none}
+.bar{height:4px;border-radius:2px}
+.row{margin-top:13px}
+.sess div{border-radius:8px;border:1px solid var(--line)}
+th{background:var(--panel2);font-weight:600;padding:10px 12px;white-space:nowrap}
+td{padding:11px 12px}
+th:first-child{border-radius:8px 0 0 8px}th:last-child{border-radius:0 8px 8px 0}
+td:first-child{color:var(--mute)}
+th:nth-child(7),td:nth-child(7){text-align:right;font-weight:600}
+tbody tr:hover td{background:var(--panel2)}
+.badge{border-radius:6px;padding:2px 9px;font-weight:600}
+dialog{border-radius:12px;box-shadow:0 20px 50px rgba(10,15,30,.28)}
+#login .box{border-radius:12px;padding:26px;box-shadow:0 10px 30px rgba(16,24,40,.08)}
+#login h2{font-size:1.2rem;letter-spacing:.01em}
+.foot{margin-top:18px}
+@media (max-width:600px){main{padding:16px 12px 56px}.big{font-size:1.45rem}}
 </style>
 </head>
 <body>
@@ -130,7 +175,7 @@ dialog{max-height:calc(100% - 28px);overflow:auto}
 <div class="err" id="lerr2"></div>
 </div></div>
 <main>
-<header><h1>Dashboard</h1>
+<header><div class="brand"><div><h1>SNIPER FX</h1><span class="sub">Trading journal</span></div></div>
 <div class="hr"><div class="tabs" id="tabs"></div><span id="syn" style="font-size:.78rem;color:var(--mute)"></span><button class="btn" id="lo" type="button">Log out</button><button class="btn" id="mng" type="button">Customize lists</button><button class="btn main" id="add" type="button">+ Add trade</button></div></header>
 
 <section class="kpis" id="kpis"></section>
