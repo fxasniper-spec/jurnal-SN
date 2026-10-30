@@ -165,24 +165,32 @@ dialog{border-radius:12px;box-shadow:0 20px 50px rgba(10,15,30,.28)}
 #login h2{font-size:1.2rem;letter-spacing:.01em}
 .foot{margin-top:18px}
 @media (max-width:600px){main{padding:16px 12px 56px}.big{font-size:1.45rem}}
+
+/* viewer / owner mode */
+#li{display:inline-flex;align-items:center;gap:6px}
+body.owner #li{display:none}
+body:not(.owner) #add,body:not(.owner) #mng,body:not(.owner) #lo,body:not(.owner) #exp,body:not(.owner) #imp,body:not(.owner) .foot,body:not(.owner) .del,body:not(.owner) #rows .btn{display:none}
+body:not(.owner) #rows td:nth-child(8),body:not(.owner) #rows td:nth-child(9),body:not(.owner) thead th:nth-child(8),body:not(.owner) thead th:nth-child(9){display:none}
+body:not(.owner) .day{cursor:default}
+#login .acts2 .btn{flex:1}
 </style>
 </head>
 <body>
-<div id="login"><div class="box">
+<div id="login" style="display:none"><div class="box">
 <div class="lg" role="img" aria-label="SNIPER FX logo"></div>
 <h2>SNIPER FX Dashboard</h2>
-<p id="lstate">Checking login...</p>
-<form id="lf" hidden>
+<p id="lstate">Owner login</p>
+<form id="lf">
 <label for="em">Email</label><input id="em" type="email" autocomplete="email" required>
 <label for="pw">Password</label><input id="pw" type="password" autocomplete="current-password" required>
 <div class="err" id="lerr"></div>
-<div class="acts2"><button class="btn main" id="bin" type="submit">Log in</button><button class="btn" id="bup" type="button">Create account</button></div>
+<div class="acts2"><button class="btn main" id="bin" type="submit">Log in</button><button class="btn" id="bclose" type="button">Back</button></div>
 </form>
 <div class="err" id="lerr2"></div>
 </div></div>
 <main>
 <header><div class="brand"><div><h1>SNIPER FX</h1><span class="sub">Trading journal</span></div></div>
-<div class="hr"><div class="tabs" id="tabs"></div><span id="syn" style="font-size:.78rem;color:var(--mute)"></span><button class="btn" id="lo" type="button">Log out</button><button class="btn" id="mng" type="button">Customize lists</button><button class="btn main" id="add" type="button">+ Add trade</button></div></header>
+<div class="hr"><div class="tabs" id="tabs"></div><span id="syn" style="font-size:.78rem;color:var(--mute)"></span><button class="btn" id="li" type="button" aria-label="Owner login" title="Owner login"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><path d="M10 17l5-5-5-5"/><path d="M15 12H3"/></svg></button><button class="btn" id="lo" type="button">Log out</button><button class="btn" id="mng" type="button">Customize lists</button><button class="btn main" id="add" type="button">+ Add trade</button></div></header>
 
 <section class="kpis" id="kpis"></section>
 
@@ -348,7 +356,7 @@ $('nm').onclick=function(){cal=new Date(cal.getFullYear(),cal.getMonth()+1,1);dr
 $('tm').onclick=function(){cal=new Date(now.getFullYear(),now.getMonth(),1);drawCal()};
 
 // ---- dialogs
-function openAdd(ds){$('d').value=ds||today;$('adlg').showModal()}
+function openAdd(ds){if(!document.body.classList.contains('owner'))return;$('d').value=ds||today;$('adlg').showModal()}
 $('add').onclick=function(){openAdd(today)};$('acancel').onclick=function(){$('adlg').close()};
 $('o').onchange=function(){var w=$('o').value==='Win';$('r').disabled=!w;$('rl').style.opacity=w?1:.5};
 $('f').onsubmit=function(e){e.preventDefault();var o=$('o').value,r=o==='Win'?parseFloat($('r').value):(o==='Loss'?-1:0);if(isNaN(r))return;
@@ -359,7 +367,7 @@ $('s').onchange=function(){var nw=$('s').value==='__new';$('nsl').hidden=!nw;$('
 var cur=null,stars=0;
 function setStars(n){stars=n;[].forEach.call($('stars').children,function(b,i){b.setAttribute('aria-pressed',i<n);b.textContent=i<n?'★':'☆'})}
 for(var si=1;si<=5;si++){(function(n){var b=el('button','☆','star');b.type='button';b.setAttribute('aria-label',n+' of 5');b.onclick=function(){setStars(stars===n?0:n)};$('stars').appendChild(b)})(si)}
-function openReview(x){cur=x;$('rt').textContent=x.d+' · '+x.s+' · '+x.ss+' · '+f(x.r)+'R';boxes('re',EMOTIONS,x.emo);boxes('rm',MISTAKES,x.mis);setStars(x.stars||0);$('rg').value=x.good||'';$('rn').value=x.lesson||'';$('dlg').showModal()}
+function openReview(x){if(!document.body.classList.contains('owner'))return;cur=x;$('rt').textContent=x.d+' · '+x.s+' · '+x.ss+' · '+f(x.r)+'R';boxes('re',EMOTIONS,x.emo);boxes('rm',MISTAKES,x.mis);setStars(x.stars||0);$('rg').value=x.good||'';$('rn').value=x.lesson||'';$('dlg').showModal()}
 $('rf').onsubmit=function(e){e.preventDefault();if(!cur)return;cur.emo=picked('re');cur.mis=picked('rm');cur.stars=stars;cur.good=$('rg').value.trim();cur.lesson=$('rn').value.trim();save();$('dlg').close();render()};
 $('rcancel').onclick=function(){$('dlg').close()};
 
@@ -451,9 +459,11 @@ load();render();
 <script>
 (function(){
 var SU="https://vbjnpkqgbhrfjlmkkwon.supabase.co",SK="sb_publishable_QmBsF8j-tC_iAib82Gmuew_l6C7BKb6";
+// PASTE YOUR USER ID (User UID from Supabase > Authentication > Users) between the quotes:
+var OWNER_ID="PASTE_YOUR_USER_ID_HERE";
 var TK='sniper-fx-journal-v1',LK='sniper-fx-lists-v2',STK='sniper-fx-sync-ts',BK='sniper-fx-backup-before-sync';
 var $=function(i){return document.getElementById(i)};
-var sb=supabase.createClient(SU,SK),user=null,started=false,ready=false,timer=null;
+var sb=supabase.createClient(SU,SK),user=null,started=false,ready=false,timer=null,viewing=false;
 var orig=Storage.prototype.setItem;
 Storage.prototype.setItem=function(k,v){orig.call(this,k,v);if(ready&&this===localStorage&&(k===TK||k===LK))queue()};
 function status(t){var s=$('syn');if(s)s.textContent=t}
@@ -473,7 +483,7 @@ function applyRemote(row){
 }
 async function begin(u){
   if(started)return;started=true;user=u;
-  $('lstate').textContent='Loading your journal...';$('lf').hidden=true;$('lerr2').textContent='';
+  $('lstate').textContent='Loading your journal...';$('lf').hidden=true;$('lerr2').textContent='';$('login').style.display='flex';
   var r=await pull();
   if(r.error){started=false;$('lstate').textContent='Could not load your data.';$('lerr2').textContent=r.error.message;return}
   var row=r.data;
@@ -482,25 +492,32 @@ async function begin(u){
     applyRemote(row)
   }
   $('login').style.display='none';
+  document.body.classList.add('owner');
   window.startApp();
   ready=true;
   if(row)status('Synced');else push();
 }
+async function viewStart(){
+  if(viewing)return;viewing=true;
+  if(OWNER_ID.indexOf('PASTE')===0){status('Owner ID not set in file');return}
+  var r=await sb.from('journal_data').select('trades,lists,updated_at').eq('user_id',OWNER_ID).maybeSingle();
+  if(r.error){status('Could not load data: '+r.error.message);return}
+  if(!r.data){status('No data yet');return}
+  applyRemote(r.data);
+  window.startApp();
+  status('Live view')
+}
 sb.auth.onAuthStateChange(function(ev,session){
-  if(session){begin(session.user)}
+  if(session){if(viewing){location.reload()}else{begin(session.user)}}
   else if(ev==='SIGNED_OUT'){location.reload()}
-  else if(ev==='INITIAL_SESSION'){$('lstate').textContent='Log in to see your trades on any device.';$('lf').hidden=false}
+  else if(ev==='INITIAL_SESSION'){viewStart()}
 });
+$('li').onclick=function(){$('lstate').textContent='Owner login';$('lf').hidden=false;$('lerr').textContent='';$('login').style.display='flex';$('em').focus()};
+$('bclose').onclick=function(){$('login').style.display='none'};
 $('lf').onsubmit=async function(e){
   e.preventDefault();$('lerr').textContent='';
   var r=await sb.auth.signInWithPassword({email:$('em').value.trim(),password:$('pw').value});
   if(r.error)$('lerr').textContent=r.error.message
-};
-$('bup').onclick=async function(){
-  $('lerr').textContent='';
-  var r=await sb.auth.signUp({email:$('em').value.trim(),password:$('pw').value});
-  if(r.error)$('lerr').textContent=r.error.message;
-  else if(!r.data.session)$('lerr').textContent='Account created. Check your email to confirm it, then log in.'
 };
 $('lo').onclick=function(){sb.auth.signOut()};
 document.addEventListener('visibilitychange',async function(){
